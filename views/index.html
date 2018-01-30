@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Crypto</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+    <link rel="stylesheet" href="https://w3schools.com/w3css/4/w3.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.0.2/js/all.js"></script>
+</head>
+<body>
+<div class="hero">
+    <div class="hero-body">
+        <h1 class="w3-center">Cryptowatcher</h1>
+        <div class="columns">
+            <div class="column is-6">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="w3-center"><i class="fab fa-bitcoin fa-5x"></i></div>
+                        <br>
+                        <div class="content">
+                            <p>Buying: $<span id="buying-BTC"> <i class="fas fa-spinner"></i></span></p>
+                            <p>Selling: $<span id="selling-BTC"> <i class="fas fa-spinner"></i></span></p>
+                            <p>Last Volumne: <span id="lastvolume-BTC"> <i class="fas fa-spinner"></i></span></p>
+                            <p>Last Market: <span id="lastmarket-BTC"> <i class="fas fa-spinner"></i></span></p>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="column is-6">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="w3-center"><i class="fab fa-ethereum fa-5x"></i></div>
+                        <br>
+                        <div class="content">
+                            <p>Buying: $<span id="buying-ETH"> <i class="fas fa-spinner"></i></span></p>
+                            <p>Selling: $<span id="selling-ETH"> <i class="fas fa-spinner"></i></span></p>
+                            <p>Last Volumne: <span id="lastvolume-ETH"> <i class="fas fa-spinner"></i></span></p>
+                            <p>Last Market: <span id="lastmarket-ETH"> <i class="fas fa-spinner"></i></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    //    var socket = io.connect('http://localhost:4200');
+    var socket = io.connect('https://streamer.cryptocompare.com/');
+    var subscription = ['5~CCCAGG~BTC~USD',
+        '5~CCCAGG~ETH~USD'
+    ];
+    socket.emit('SubAdd', {subs: subscription});
+    socket.on("m", function (data) {
+//        console.log(data);
+        let message = data.split("~");
+        let flag = parseInt(message[4]);
+        let coin = message[2];
+
+        console.log(coin);
+        let lastvolume = document.getElementById("lastvolume-" + coin);
+        let lastmarket = document.getElementById("lastmarket-" + coin);
+        lastvolume.innerHTML = message[7];
+        lastmarket.innerHTML = message[12];
+        if (flag === 1) {
+            let buying = document.getElementById("buying-" + coin);
+            buying.innerHTML = message[5];
+
+
+        } else if (flag === 2) {
+            let selling = document.getElementById("selling-" + coin);
+            selling.innerHTML = message[5];
+
+        } else (console.log(flag))
+
+    });
+
+    socket.on('connect', function (data) {
+        socket.emit('join', 'Joined');
+    });
+</script>
+</body>
+</html>
