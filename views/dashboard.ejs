@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Node Authentication</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Karla" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:900" rel="stylesheet">
+    <style>
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Raleway', sans-serif;
+        }
+
+        body,
+        p,
+        div,
+        span,
+        .label,
+        .help,
+        .input,
+        .select,
+        .label,
+        #id_description,
+        #id_professional_summary {
+            font-family: 'Karla', sans-serif;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar w3-card-2">
+        <div class="navbar-brand">
+            <a class="navbar-item " href="/" style="font-family: Raleway">
+                The Cryptowatcher
+            </a>
+            <div class="navbar-burger burger" data-target="navbarExampleTransparentExample">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <div id="navbarExampleTransparentExample" class="navbar-menu">
+
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <div class="field is-grouped">
+
+                        <p class="control">
+                            <a class="button is-dark" href="/logout">
+
+                                <span>Sign out</span>
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+
+
+        <div class="columns w3-margin">
+            <div class="column is-4 w3-center w3-xxxlarge w3-light-blue w3-padding-64" style="font-family: Raleway">
+                Bitcoin
+                <br> $
+                <span class="w3-xxxlarge" id="buying-BTC"></span>
+                <br> $
+                <span class="w3-xxxlarge" id="selling-BTC"></span>
+            </div>
+            <div class="column is-4 w3-center w3-xxxlarge w3-pink w3-padding-64" style="font-family: Raleway">
+                Ethereum
+                <br> $
+                <span class="w3-xxxlarge" id="buying-ETH"></span>
+                <br> $
+                <span class="w3-xxxlarge" id="selling-ETH"></span>
+            </div>
+            <div class="column is-4 w3-center w3-xxxlarge w3-yellow w3-padding-64" style="font-family: Raleway">
+                DASH
+                <br> $
+                <span class="w3-xxxlarge" id="buying-DASH"></span>
+                <br> $
+                <span class="w3-xxxlarge" id="selling-DASH"></span>
+            </div>
+        </div>
+
+
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+    <script>
+        //    var socket = io.connect('http://localhost:4200');
+        var socket = io.connect('https://streamer.cryptocompare.com/');
+        var subscription = [
+            '5~CCCAGG~BTC~USD',
+            '5~CCCAGG~ETH~USD',
+            '5~CCCAGG~DASH~USD',
+        ];
+        socket.emit('SubAdd', { subs: subscription });
+        socket.on("m", function (data) {
+            let message = data.split("~");
+            let flag = parseInt(message[4]);
+            let coin = message[2];
+            try {
+                let exchange = document.getElementById('exchange-' + coin);
+                exchange.innerHTML = message[message.length - 2];
+            }
+            catch (err) {
+                console.log(err)
+            }
+            if (flag === 1) {
+                let buying = document.getElementById('buying-' + coin);
+                buying.innerHTML = message[5];
+            } else if (flag === 2) {
+                let selling = document.getElementById('selling-' + coin);
+                selling.innerHTML = message[5];
+            } else (console.log(flag))
+        });
+        socket.on('connect', function (data) {
+            socket.emit('join', 'Joined');
+        });
+    </script>
+</body>
+
+</html>
